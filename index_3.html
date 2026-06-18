@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Labari Network — African Journalism Directory</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,600;1,300&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --ink: #111111; --ink-mid: #444444; --ink-soft: #888888;
+    --rule: #e2e2e2; --bg: #fafaf8; --surface: #ffffff;
+    --accent: #c0392b; --accent-dim: #f5e9e8;
+    --green: #1e6b4a; --green-dim: #e4f0eb;
+    --gold: #d4a017; --radius: 6px;
+    --shadow: 0 1px 4px rgba(0,0,0,.07), 0 4px 16px rgba(0,0,0,.05);
+  }
+  html { font-size: 16px; scroll-behavior: smooth; }
+  body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; -webkit-font-smoothing: antialiased; }
+
+  header { background: var(--ink); color: #fff; padding: 0 32px; display: flex; align-items: center; justify-content: space-between; height: 60px; position: sticky; top: 0; z-index: 100; }
+  .wordmark { display: flex; align-items: baseline; gap: 10px; }
+  .wordmark-title { font-family: 'Fraunces', Georgia, serif; font-weight: 300; font-size: 1.15rem; letter-spacing: .5px; color: #fff; }
+  .wordmark-badge { font-size: .65rem; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); opacity: .85; }
+  .header-right { display: flex; align-items: center; gap: 20px; }
+  .header-count { font-size: .75rem; font-weight: 500; color: rgba(255,255,255,.45); letter-spacing: .5px; }
+  .btn-submit { font-size: .75rem; font-weight: 600; letter-spacing: .5px; text-transform: uppercase; color: var(--gold); background: transparent; border: 1px solid rgba(212,160,23,.4); border-radius: 4px; padding: 6px 14px; cursor: pointer; text-decoration: none; transition: background .15s, border-color .15s; }
+  .btn-submit:hover { background: rgba(212,160,23,.1); border-color: var(--gold); }
+
+  .hero { background: var(--ink); color: #fff; padding: 40px 32px 32px; border-bottom: 3px solid var(--accent); }
+  .hero h1 { font-family: 'Fraunces', Georgia, serif; font-weight: 300; font-size: clamp(1.8rem, 4vw, 2.8rem); line-height: 1.15; max-width: 640px; margin-bottom: 10px; }
+  .hero h1 em { font-style: italic; color: var(--gold); }
+  .hero-sub { font-size: .85rem; color: rgba(255,255,255,.5); font-weight: 400; max-width: 520px; line-height: 1.6; }
+
+  .toolbar { background: var(--surface); border-bottom: 1px solid var(--rule); padding: 14px 32px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; position: sticky; top: 60px; z-index: 90; }
+  .tabs { display: flex; background: var(--bg); border: 1px solid var(--rule); border-radius: 6px; overflow: hidden; flex-shrink: 0; }
+  .tab { font-size: .78rem; font-weight: 600; letter-spacing: .3px; padding: 7px 18px; border: none; background: transparent; color: var(--ink-soft); cursor: pointer; transition: background .15s, color .15s; white-space: nowrap; }
+  .tab.active-j { background: var(--accent); color: #fff; }
+  .tab.active-o { background: var(--green); color: #fff; }
+  .tab:not(.active-j):not(.active-o):hover { background: var(--rule); color: var(--ink); }
+
+  .search-wrap { position: relative; flex: 1; min-width: 180px; max-width: 320px; }
+  .search-wrap svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--ink-soft); pointer-events: none; }
+  .search-input { width: 100%; padding: 8px 12px 8px 34px; border: 1px solid var(--rule); border-radius: var(--radius); font-size: .82rem; font-family: inherit; background: var(--bg); color: var(--ink); outline: none; transition: border-color .15s; }
+  .search-input:focus { border-color: var(--accent); }
+  .filter-select { padding: 7px 28px 7px 10px; border: 1px solid var(--rule); border-radius: var(--radius); font-size: .8rem; font-family: inherit; background: var(--bg); color: var(--ink); outline: none; appearance: none; cursor: pointer; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23888'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 9px center; transition: border-color .15s; }
+  .filter-select:focus { border-color: var(--accent); }
+  .toolbar-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+  .result-count { font-size: .75rem; color: var(--ink-soft); white-space: nowrap; }
+
+  .main { padding: 24px 32px; max-width: 1400px; margin: 0 auto; }
+  .table-wrap { background: var(--surface); border: 1px solid var(--rule); border-radius: 8px; overflow: hidden; box-shadow: var(--shadow); }
+  table { width: 100%; border-collapse: collapse; }
+  thead { background: var(--bg); border-bottom: 2px solid var(--rule); }
+  th { font-size: .68rem; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; color: var(--ink-soft); padding: 12px 16px; text-align: left; white-space: nowrap; }
+  th.sortable { cursor: pointer; user-select: none; }
+  th.sortable:hover { color: var(--ink); }
+  tbody tr { border-bottom: 1px solid var(--rule); cursor: pointer; transition: background .1s; }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: var(--bg); }
+  td { padding: 13px 16px; font-size: .85rem; vertical-align: middle; }
+
+  .avatar { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; background: var(--rule); flex-shrink: 0; border: 2px solid var(--rule); }
+  .avatar-ph { width: 38px; height: 38px; border-radius: 50%; background: var(--accent-dim); color: var(--accent); font-size: .75rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .avatar-ph.org { background: var(--green-dim); color: var(--green); border-radius: 6px; }
+  .org-logo { width: 38px; height: 38px; border-radius: 6px; object-fit: contain; background: var(--bg); border: 1px solid var(--rule); padding: 3px; flex-shrink: 0; }
+  .name-cell { display: flex; align-items: center; gap: 12px; }
+  .name-text { font-weight: 600; font-size: .88rem; }
+
+  .pill { display: inline-block; font-size: .67rem; font-weight: 600; letter-spacing: .3px; padding: 3px 8px; border-radius: 20px; background: var(--accent-dim); color: var(--accent); white-space: nowrap; margin: 2px 2px 2px 0; }
+  .pill-o { background: var(--green-dim); color: var(--green); }
+  .pill-c { background: #f0f0f0; color: #555; }
+  .beat-pills { display: flex; flex-wrap: wrap; gap: 0; }
+
+  .link-icon { display: inline-flex; align-items: center; color: var(--ink-soft); text-decoration: none; font-size: .75rem; gap: 4px; transition: color .15s; }
+  .link-icon:hover { color: var(--accent); }
+
+  .skel { background: linear-gradient(90deg,#ebebeb 25%,#f5f5f5 50%,#ebebeb 75%); background-size: 200% 100%; animation: shimmer 1.4s infinite; border-radius: 4px; height: 14px; }
+  .skel-circle { width: 38px; height: 38px; border-radius: 50%; }
+  @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+  .empty { text-align: center; padding: 60px 24px; color: var(--ink-soft); }
+  .empty-icon { font-size: 2.5rem; margin-bottom: 12px; }
+  .empty h3 { font-size: 1rem; font-weight: 600; color: var(--ink-mid); margin-bottom: 6px; }
+  .empty p { font-size: .85rem; }
+
+  .panel-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.35); z-index: 200; opacity: 0; pointer-events: none; transition: opacity .2s; }
+  .panel-overlay.open { opacity: 1; pointer-events: all; }
+  .panel { position: fixed; top: 0; right: 0; bottom: 0; width: min(480px,100vw); background: var(--surface); z-index: 201; overflow-y: auto; transform: translateX(100%); transition: transform .25s cubic-bezier(.4,0,.2,1); box-shadow: -4px 0 32px rgba(0,0,0,.12); }
+  .panel.open { transform: translateX(0); }
+  .panel-header { position: sticky; top: 0; background: var(--surface); border-bottom: 1px solid var(--rule); padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; z-index: 1; }
+  .panel-close { width: 32px; height: 32px; border: none; background: var(--bg); border-radius: 50%; cursor: pointer; font-size: 1.1rem; color: var(--ink-mid); display: flex; align-items: center; justify-content: center; transition: background .15s; }
+  .panel-close:hover { background: var(--rule); }
+  .panel-body { padding: 24px; }
+  .panel-avatar-row { display: flex; align-items: flex-start; gap: 18px; margin-bottom: 20px; }
+  .panel-avatar { width: 72px; height: 72px; border-radius: 50%; object-fit: cover; border: 3px solid var(--rule); flex-shrink: 0; }
+  .panel-avatar-ph { width: 72px; height: 72px; border-radius: 50%; background: var(--accent-dim); color: var(--accent); font-size: 1.4rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .panel-avatar-ph.org { background: var(--green-dim); color: var(--green); border-radius: 12px; }
+  .panel-name { font-family: 'Fraunces', serif; font-weight: 600; font-size: 1.3rem; line-height: 1.2; margin-bottom: 5px; }
+  .panel-role { font-size: .82rem; color: var(--ink-soft); margin-bottom: 8px; }
+  .panel-section { margin-bottom: 20px; }
+  .panel-label { font-size: .65rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 6px; }
+  .panel-value { font-size: .88rem; line-height: 1.6; color: var(--ink-mid); }
+  .panel-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .panel-links { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+  .panel-link-btn { display: inline-flex; align-items: center; gap: 6px; font-size: .78rem; font-weight: 600; padding: 7px 14px; border-radius: 4px; text-decoration: none; border: 1px solid var(--rule); color: var(--ink-mid); background: var(--bg); transition: border-color .15s, color .15s, background .15s; }
+  .panel-link-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
+  .panel-link-btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .panel-link-btn.primary:hover { background: #a93226; }
+  .panel-link-btn.primary-g { background: var(--green); color: #fff; border-color: var(--green); }
+  .panel-link-btn.primary-g:hover { background: #155235; }
+
+  .error-banner { background: #fff3f3; border: 1px solid #f5c6c6; border-radius: 6px; padding: 16px 20px; margin-bottom: 20px; font-size: .85rem; color: #a93226; display: none; }
+
+  @media (max-width: 768px) {
+    header { padding: 0 16px; } .hero { padding: 24px 16px 20px; }
+    .toolbar { padding: 10px 16px; gap: 8px; } .main { padding: 16px; }
+    .col-hide { display: none; } .panel { width: 100vw; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wordmark">
+    <span class="wordmark-title">The Labari Network</span>
+    <span class="wordmark-badge">Directory</span>
+  </div>
+  <div class="header-right">
+    <span class="header-count" id="total-count">Loading…</span>
+    <a href="https://labarijournal.com" class="btn-submit" target="_blank">Submit a Profile</a>
+  </div>
+</header>
+
+<div class="hero">
+  <h1>Africa's journalism<br><em>in one place.</em></h1>
+  <p class="hero-sub">A living directory of journalists and media organisations across the continent — curated by The Labari Network.</p>
+</div>
+
+<div class="toolbar">
+  <div class="tabs">
+    <button class="tab active-j" id="tab-j" onclick="switchTab('j')">Journalists</button>
+    <button class="tab" id="tab-o" onclick="switchTab('o')">Media Organisations</button>
+  </div>
+  <div class="search-wrap">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input class="search-input" type="text" id="search" placeholder="Search by name, beat, country…" oninput="applyFilters()" autocomplete="off">
+  </div>
+  <select class="filter-select" id="f-country" onchange="applyFilters()"><option value="">All countries</option></select>
+  <select class="filter-select" id="f-beat" onchange="applyFilters()"><option value="">All beats</option></select>
+  <div class="toolbar-right"><span class="result-count" id="result-count"></span></div>
+</div>
+
+<div class="main">
+  <div class="error-banner" id="error-banner"></div>
+
+  <div id="sec-j">
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th style="width:220px" class="sortable" onclick="sortBy('j','Journalist Name')">Name <span id="si-j"></span></th>
+          <th>Country</th>
+          <th>Role</th>
+          <th>Beat / Sector</th>
+          <th class="col-hide">Publication</th>
+          <th class="col-hide">Language</th>
+          <th class="col-hide">Links</th>
+        </tr></thead>
+        <tbody id="body-j"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="sec-o" style="display:none">
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th style="width:220px" class="sortable" onclick="sortBy('o','Organisation Name')">Organisation <span id="si-o"></span></th>
+          <th>Country</th>
+          <th>Beat / Sector</th>
+          <th>Website</th>
+          <th class="col-hide">Language</th>
+          <th class="col-hide">Contact</th>
+        </tr></thead>
+        <tbody id="body-o"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="panel-overlay" id="overlay" onclick="closePanel()"></div>
+<div class="panel" id="panel">
+  <div class="panel-header">
+    <span class="panel-label" style="margin:0" id="panel-type">Profile</span>
+    <button class="panel-close" onclick="closePanel()">✕</button>
+  </div>
+  <div class="panel-body" id="panel-body"></div>
+</div>
+
+<script>
+// ── CONFIG ────────────────────────────────────────────────────────────────
+const BASE_ID = 'app1sULvZpXQ6ltUc';
+const TOKEN   = 'pato4La6psA9c0uC4.2c290ad72ed36b377dba1381118a74f3aaf06dbcccea3baef8115cf5b8d0fd54';
+const TABLES  = { j: 'Journalists', o: 'Media Organisations' };
+
+// ── STATE ─────────────────────────────────────────────────────────────────
+let data = { j: [], o: [] };
+let filtered = { j: [], o: [] };
+let activeTab = 'j';
+let sortState = { j: { col: '', dir: 1 }, o: { col: '', dir: 1 } };
+
+// ── AIRTABLE FETCH (handles pagination) ───────────────────────────────────
+async function fetchTable(tableKey) {
+  const tableName = TABLES[tableKey];
+  let records = [], offset = null;
+  do {
+    let url = `https://api.airtable.com/v0/${BASE_ID}/${encodeURIComponent(tableName)}?pageSize=100`;
+    if (offset) url += `&offset=${offset}`;
+    const resp = await fetch(url, { headers: { Authorization: `Bearer ${TOKEN}` } });
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => ({}));
+      throw new Error(err.error?.message || `HTTP ${resp.status}`);
+    }
+    const json = await resp.json();
+    records = records.concat(json.records.map(r => r.fields));
+    offset = json.offset || null;
+  } while (offset);
+  return records;
+}
+
+// ── HELPERS ───────────────────────────────────────────────────────────────
+const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const initials = n => (n||'?').split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase();
+function ensureHttps(u) { if(!u) return ''; u=u.trim(); return /^https?:\/\//i.test(u)?u:'https://'+u; }
+function hostOnly(u) { try{return new URL(ensureHttps(u)).hostname.replace('www.','')}catch{return u} }
+function pills(str, cls='') {
+  return (str||'').split(';').map(s=>s.trim()).filter(Boolean)
+    .map(s=>`<span class="pill ${cls}">${esc(s)}</span>`).join('');
+}
+
+// Airtable attachment fields return an array of objects with a url property
+function getImageUrl(field) {
+  if (!field) return '';
+  if (typeof field === 'string') return field;
+  if (Array.isArray(field) && field[0]?.url) return field[0].url;
+  return '';
+}
+
+function skeletonRows(cols) {
+  return Array(6).fill(0).map(()=>`<tr>${Array(cols).fill(0).map((_,i)=>
+    `<td>${i===0?`<div class="name-cell"><div class="skel skel-circle"></div><div class="skel" style="width:110px"></div></div>`
+    :`<div class="skel" style="width:${[70,90,130,100,60,50][i]||80}px"></div>`}</td>`
+  ).join('')}</tr>`).join('');
+}
+
+// ── RENDER JOURNALISTS ────────────────────────────────────────────────────
+function renderJ(rows) {
+  filtered.j = rows;
+  const tb = document.getElementById('body-j');
+  if (!rows.length) { tb.innerHTML=`<tr><td colspan="7"><div class="empty"><div class="empty-icon">🔍</div><h3>No results</h3><p>Try adjusting your search or filters.</p></div></td></tr>`; return; }
+  tb.innerHTML = rows.map((j,i) => {
+    const img = getImageUrl(j['Profile Picture']);
+    const av = img
+      ? `<img class="avatar" src="${esc(img)}" alt="${esc(j['Journalist Name'])}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="avatar-ph" style="display:none">${esc(initials(j['Journalist Name']))}</div>`
+      : `<div class="avatar-ph">${esc(initials(j['Journalist Name']))}</div>`;
+    const li = j['LinkedIn'] ? `<a class="link-icon" href="${esc(j['LinkedIn'])}" target="_blank" onclick="event.stopPropagation()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6zM2 9h4v12H2z"/><circle cx="4" cy="4" r="2"/></svg> in</a>` : '';
+    return `<tr onclick="openJ(${i})">
+      <td><div class="name-cell">${av}<span class="name-text">${esc(j['Journalist Name']||'')}</span></div></td>
+      <td><span class="pill pill-c">${esc(j['Country']||'—')}</span></td>
+      <td style="font-size:.8rem;color:var(--ink-mid)">${esc((j['Role']||'').split(';')[0])}</td>
+      <td><div class="beat-pills">${pills(j['Beat/Sector'])}</div></td>
+      <td class="col-hide" style="font-size:.8rem;color:var(--ink-mid)">${esc(j['Media Publication']||'—')}</td>
+      <td class="col-hide" style="font-size:.78rem;color:var(--ink-soft)">${esc(j['Language']||'')}</td>
+      <td class="col-hide">${li}</td>
+    </tr>`;
+  }).join('');
+  document.getElementById('result-count').textContent = `${rows.length} journalist${rows.length!==1?'s':''}`;
+}
+
+// ── RENDER ORGS ───────────────────────────────────────────────────────────
+function renderO(rows) {
+  filtered.o = rows;
+  const tb = document.getElementById('body-o');
+  if (!rows.length) { tb.innerHTML=`<tr><td colspan="6"><div class="empty"><div class="empty-icon">🔍</div><h3>No results</h3><p>Try adjusting your search or filters.</p></div></td></tr>`; return; }
+  tb.innerHTML = rows.map((o,i) => {
+    const name = o['Organisation Name'] || o['Name'] || '';
+    const img  = getImageUrl(o['Logo']);
+    const av = img
+      ? `<img class="org-logo" src="${esc(img)}" alt="${esc(name)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="avatar-ph org" style="display:none">${esc(initials(name))}</div>`
+      : `<div class="avatar-ph org">${esc(initials(name))}</div>`;
+    const site = ensureHttps(o['Website']||'');
+    const siteLink = site ? `<a class="link-icon" href="${esc(site)}" target="_blank" onclick="event.stopPropagation()">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg> ${esc(hostOnly(o['Website']))}</a>` : '—';
+    const email = o['Email Contact'] ? `<a class="link-icon" href="mailto:${esc(o['Email Contact'])}" onclick="event.stopPropagation()">${esc(o['Email Contact'])}</a>` : '';
+    return `<tr onclick="openO(${i})">
+      <td><div class="name-cell">${av}<span class="name-text">${esc(name)}</span></div></td>
+      <td><span class="pill pill-c">${esc(o['Country']||'—')}</span></td>
+      <td><div class="beat-pills">${pills(o['Beat/Sector']||o['Beat/Sector ']||'','pill-o')}</div></td>
+      <td>${siteLink}</td>
+      <td class="col-hide" style="font-size:.78rem;color:var(--ink-soft)">${esc(o['Language']||'')}</td>
+      <td class="col-hide">${email}</td>
+    </tr>`;
+  }).join('');
+  document.getElementById('result-count').textContent = `${rows.length} organisation${rows.length!==1?'s':''}`;
+}
+
+// ── FILTERS ───────────────────────────────────────────────────────────────
+function populateFilters() {
+  const d = activeTab==='j' ? data.j : data.o;
+  const countries = [...new Set(d.map(r=>r['Country']).filter(Boolean))].sort();
+  const beats = [...new Set(d.flatMap(r=>(r['Beat/Sector']||r['Beat/Sector ']||'').split(';').map(b=>b.trim()).filter(Boolean)))].sort();
+  document.getElementById('f-country').innerHTML = `<option value="">All countries</option>` + countries.map(c=>`<option>${esc(c)}</option>`).join('');
+  document.getElementById('f-beat').innerHTML    = `<option value="">All beats</option>`    + beats.map(b=>`<option>${esc(b)}</option>`).join('');
+}
+
+function applyFilters() {
+  const q = document.getElementById('search').value.toLowerCase();
+  const country = document.getElementById('f-country').value;
+  const beat    = document.getElementById('f-beat').value;
+  const beatKey = r => r['Beat/Sector'] || r['Beat/Sector '] || '';
+  let d = activeTab==='j' ? [...data.j] : [...data.o];
+  if (q)       d = d.filter(r => JSON.stringify(r).toLowerCase().includes(q));
+  if (country) d = d.filter(r => r['Country'] === country);
+  if (beat)    d = d.filter(r => beatKey(r).split(';').map(b=>b.trim()).includes(beat));
+  activeTab==='j' ? renderJ(d) : renderO(d);
+}
+
+// ── SORT ──────────────────────────────────────────────────────────────────
+function sortBy(tab, col) {
+  const s = sortState[tab];
+  s.dir = s.col===col ? s.dir*-1 : 1; s.col = col;
+  document.getElementById(`si-${tab}`).textContent = s.dir===1?'↑':'↓';
+  const arr = tab==='j' ? filtered.j : filtered.o;
+  arr.sort((a,b)=>(a[col]||'').localeCompare(b[col]||'')*s.dir);
+  tab==='j' ? renderJ(arr) : renderO(arr);
+}
+
+// ── TAB SWITCH ────────────────────────────────────────────────────────────
+function switchTab(t) {
+  activeTab = t;
+  document.getElementById('sec-j').style.display = t==='j' ? '' : 'none';
+  document.getElementById('sec-o').style.display = t==='o' ? '' : 'none';
+  document.getElementById('tab-j').className = 'tab' + (t==='j' ? ' active-j' : '');
+  document.getElementById('tab-o').className = 'tab' + (t==='o' ? ' active-o' : '');
+  document.getElementById('search').value = '';
+  document.getElementById('f-country').value = '';
+  document.getElementById('f-beat').value = '';
+  populateFilters();
+  applyFilters();
+  closePanel();
+}
+
+// ── PANEL: JOURNALIST ─────────────────────────────────────────────────────
+function openJ(i) {
+  const j = filtered.j[i]; if(!j) return;
+  document.getElementById('panel-type').textContent = 'Journalist Profile';
+  const img = getImageUrl(j['Profile Picture']);
+  const av = img
+    ? `<img class="panel-avatar" src="${esc(img)}" alt="${esc(j['Journalist Name'])}" onerror="this.outerHTML='<div class=panel-avatar-ph>${esc(initials(j['Journalist Name']))}</div>'">`
+    : `<div class="panel-avatar-ph">${esc(initials(j['Journalist Name']))}</div>`;
+  const links = [];
+  if (j['LinkedIn'])    links.push(`<a class="panel-link-btn" href="${esc(j['LinkedIn'])}" target="_blank">LinkedIn</a>`);
+  if (j['Media Site/Personal Website (If Any)']) links.push(`<a class="panel-link-btn" href="${esc(ensureHttps(j['Media Site/Personal Website (If Any)']))}" target="_blank">Website</a>`);
+  if (j['Email'])       links.push(`<a class="panel-link-btn" href="mailto:${esc(j['Email'])}">Email</a>`);
+  document.getElementById('panel-body').innerHTML = `
+    <div class="panel-avatar-row">${av}
+      <div><div class="panel-name">${esc(j['Journalist Name']||'')}</div>
+        <div class="panel-role">${esc(j['Role']||'')}</div>
+        <div class="beat-pills">${pills(j['Beat/Sector'])}</div></div>
+    </div>
+    ${j['Bio']?`<div class="panel-section"><div class="panel-label">Bio</div><div class="panel-value">${esc(j['Bio'])}</div></div>`:''}
+    <div class="panel-section panel-grid">
+      ${j['Country']?`<div><div class="panel-label">Country</div><div class="panel-value">${esc(j['Country'])}</div></div>`:''}
+      ${j['Media Publication']?`<div><div class="panel-label">Publication</div><div class="panel-value">${esc(j['Media Publication'])}</div></div>`:''}
+      ${j['Language']?`<div><div class="panel-label">Language</div><div class="panel-value">${esc(j['Language'])}</div></div>`:''}
+    </div>
+    ${links.length?`<div class="panel-links">${links.join('')}</div>`:''}`;
+  openPanel();
+}
+
+// ── PANEL: ORG ────────────────────────────────────────────────────────────
+function openO(i) {
+  const o = filtered.o[i]; if(!o) return;
+  const name = o['Organisation Name'] || o['Name'] || '';
+  document.getElementById('panel-type').textContent = 'Media Organisation';
+  const img = getImageUrl(o['Logo']);
+  const av = img
+    ? `<img class="panel-avatar" src="${esc(img)}" alt="${esc(name)}" style="border-radius:10px;object-fit:contain;background:var(--bg);padding:6px" onerror="this.outerHTML='<div class=panel-avatar-ph org>${esc(initials(name))}</div>'">`
+    : `<div class="panel-avatar-ph org">${esc(initials(name))}</div>`;
+  const site = ensureHttps(o['Website']||'');
+  const links = [];
+  if (site)              links.push(`<a class="panel-link-btn primary-g" href="${esc(site)}" target="_blank">Visit Website</a>`);
+  if (o['Email Contact']) links.push(`<a class="panel-link-btn" href="mailto:${esc(o['Email Contact'])}">Email</a>`);
+  if (o['LinkedIn'])     links.push(`<a class="panel-link-btn" href="${esc(o['LinkedIn'])}" target="_blank">LinkedIn</a>`);
+  document.getElementById('panel-body').innerHTML = `
+    <div class="panel-avatar-row">${av}
+      <div><div class="panel-name">${esc(name)}</div>
+        <div class="panel-role">${esc(o['Country']||'')}</div>
+        <div class="beat-pills">${pills(o['Beat/Sector']||o['Beat/Sector ']||'','pill-o')}</div></div>
+    </div>
+    ${o['Description']?`<div class="panel-section"><div class="panel-label">About</div><div class="panel-value">${esc(o['Description'])}</div></div>`:''}
+    <div class="panel-section panel-grid">
+      ${o['Language']?`<div><div class="panel-label">Language</div><div class="panel-value">${esc(o['Language'])}</div></div>`:''}
+      ${site?`<div><div class="panel-label">Website</div><div class="panel-value"><a href="${esc(site)}" target="_blank" style="color:var(--green)">${esc(hostOnly(o['Website']))}</a></div></div>`:''}
+    </div>
+    ${links.length?`<div class="panel-links">${links.join('')}</div>`:''}`;
+  openPanel();
+}
+
+function openPanel() { document.getElementById('panel').classList.add('open'); document.getElementById('overlay').classList.add('open'); document.body.style.overflow='hidden'; }
+function closePanel() { document.getElementById('panel').classList.remove('open'); document.getElementById('overlay').classList.remove('open'); document.body.style.overflow=''; }
+document.addEventListener('keydown', e => { if(e.key==='Escape') closePanel(); });
+
+// ── INIT ──────────────────────────────────────────────────────────────────
+document.getElementById('body-j').innerHTML = skeletonRows(7);
+document.getElementById('body-o').innerHTML = skeletonRows(6);
+
+Promise.all([fetchTable('j'), fetchTable('o')])
+  .then(([rj, ro]) => {
+    data.j = rj.filter(r => r['Journalist Name']);
+    data.o = ro.filter(r => r['Organisation Name'] || r['Name']);
+    filtered.j = data.j; filtered.o = data.o;
+    document.getElementById('total-count').textContent = `${data.j.length} journalists · ${data.o.length} organisations`;
+    populateFilters();
+    renderJ(data.j);
+  })
+  .catch(err => {
+    document.getElementById('error-banner').style.display = 'block';
+    document.getElementById('error-banner').textContent = `Could not load data from Airtable: ${err.message}`;
+    document.getElementById('body-j').innerHTML = `<tr><td colspan="7"><div class="empty"><div class="empty-icon">⚠️</div><h3>Could not load directory</h3><p>${err.message}</p></div></td></tr>`;
+  });
+</script>
+</body>
+</html>
