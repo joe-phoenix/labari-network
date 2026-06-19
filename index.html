@@ -201,8 +201,9 @@
 
 <script>
 // ── CONFIG ────────────────────────────────────────────────────────────────
-const BASE_ID = 'app1sULvZpXQ6ltUc';
-const TOKEN   = 'pato4La6psA9c0uC4.2c290ad72ed36b377dba1381118a74f3aaf06dbcccea3baef8115cf5b8d0fd54';
+// No token here — all API calls go through your Cloudflare Worker proxy.
+// Replace this URL with your actual Worker URL after deploying worker.js
+const WORKER_URL = 'https://YOUR-WORKER-NAME.YOUR-SUBDOMAIN.workers.dev';
 const TABLES  = { j: 'Journalists', o: 'Media Organisations' };
 
 // ── STATE ─────────────────────────────────────────────────────────────────
@@ -211,17 +212,17 @@ let filtered = { j: [], o: [] };
 let activeTab = 'j';
 let sortState = { j: { col: '', dir: 1 }, o: { col: '', dir: 1 } };
 
-// ── AIRTABLE FETCH (handles pagination) ───────────────────────────────────
+// ── FETCH VIA CLOUDFLARE WORKER PROXY ────────────────────────────────────
 async function fetchTable(tableKey) {
   const tableName = TABLES[tableKey];
   let records = [], offset = null;
   do {
-    let url = `https://api.airtable.com/v0/${BASE_ID}/${encodeURIComponent(tableName)}?pageSize=100`;
+    let url = `${WORKER_URL}?table=${encodeURIComponent(tableName)}`;
     if (offset) url += `&offset=${offset}`;
-    const resp = await fetch(url, { headers: { Authorization: `Bearer ${TOKEN}` } });
+    const resp = await fetch(url);
     if (!resp.ok) {
       const err = await resp.json().catch(() => ({}));
-      throw new Error(err.error?.message || `HTTP ${resp.status}`);
+      throw new Error(err.error || `HTTP ${resp.status}`);
     }
     const json = await resp.json();
     records = records.concat(json.records.map(r => r.fields));
