@@ -12,7 +12,7 @@
   :root {
     --ink: #111111; --ink-mid: #444444; --ink-soft: #888888;
     --rule: #e2e2e2; --bg: #fafaf8; --surface: #ffffff;
-    --accent: #c0392b; --accent-dim: #f5e9e8;
+    --accent: #0096FF; --accent-dim: #e6f4ff;
     --green: #1e6b4a; --green-dim: #e4f0eb;
     --gold: #d4a017; --radius: 6px;
     --shadow: 0 1px 4px rgba(0,0,0,.07), 0 4px 16px rgba(0,0,0,.05);
@@ -108,11 +108,11 @@
   .panel-link-btn { display: inline-flex; align-items: center; gap: 6px; font-size: .78rem; font-weight: 600; padding: 7px 14px; border-radius: 4px; text-decoration: none; border: 1px solid var(--rule); color: var(--ink-mid); background: var(--bg); transition: border-color .15s, color .15s, background .15s; }
   .panel-link-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
   .panel-link-btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
-  .panel-link-btn.primary:hover { background: #a93226; }
+  .panel-link-btn.primary:hover { background: #0077cc; }
   .panel-link-btn.primary-g { background: var(--green); color: #fff; border-color: var(--green); }
   .panel-link-btn.primary-g:hover { background: #155235; }
 
-  .error-banner { background: #fff3f3; border: 1px solid #f5c6c6; border-radius: 6px; padding: 16px 20px; margin-bottom: 20px; font-size: .85rem; color: #a93226; display: none; }
+  .error-banner { background: #fff3f3; border: 1px solid #f5c6c6; border-radius: 6px; padding: 16px 20px; margin-bottom: 20px; font-size: .85rem; color: #c0392b; display: none; }
 
   @media (max-width: 768px) {
     header { padding: 0 16px; } .hero { padding: 24px 16px 20px; }
@@ -150,6 +150,7 @@
   </div>
   <select class="filter-select" id="f-country" onchange="applyFilters()"><option value="">All countries</option></select>
   <select class="filter-select" id="f-beat" onchange="applyFilters()"><option value="">All beats</option></select>
+  <select class="filter-select" id="f-lang" onchange="applyFilters()"><option value="">All languages</option></select>
   <div class="toolbar-right"><span class="result-count" id="result-count"></span></div>
 </div>
 
@@ -166,7 +167,6 @@
           <th>Beat / Sector</th>
           <th class="col-hide">Publication</th>
           <th class="col-hide">Language</th>
-          <th class="col-hide">Links</th>
         </tr></thead>
         <tbody id="body-j"></tbody>
       </table>
@@ -235,9 +235,14 @@ const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replac
 const initials = n => (n||'?').split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase();
 function ensureHttps(u) { if(!u) return ''; u=u.trim(); return /^https?:\/\//i.test(u)?u:'https://'+u; }
 function hostOnly(u) { try{return new URL(ensureHttps(u)).hostname.replace('www.','')}catch{return u} }
-function pills(str, cls='') {
-  return (str||'').split(';').map(s=>s.trim()).filter(Boolean)
-    .map(s=>`<span class="pill ${cls}">${esc(s)}</span>`).join('');
+// Airtable multi-select = array; fallback to semicolon-split string
+function toArr(val) {
+  if (!val) return [];
+  if (Array.isArray(val)) return val.map(s=>String(s).trim()).filter(Boolean);
+  return String(val).split(';').map(s=>s.trim()).filter(Boolean);
+}
+function pills(val, cls='') {
+  return toArr(val).map(s=>`<span class="pill ${cls}">${esc(s)}</span>`).join('');
 }
 
 // Airtable attachment fields return an array of objects with a url property
@@ -265,16 +270,13 @@ function renderJ(rows) {
     const av = img
       ? `<img class="avatar" src="${esc(img)}" alt="${esc(j['Journalist Name'])}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="avatar-ph" style="display:none">${esc(initials(j['Journalist Name']))}</div>`
       : `<div class="avatar-ph">${esc(initials(j['Journalist Name']))}</div>`;
-    const li = j['LinkedIn'] ? `<a class="link-icon" href="${esc(j['LinkedIn'])}" target="_blank" onclick="event.stopPropagation()">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6zM2 9h4v12H2z"/><circle cx="4" cy="4" r="2"/></svg> in</a>` : '';
     return `<tr onclick="openJ(${i})">
       <td><div class="name-cell">${av}<span class="name-text">${esc(j['Journalist Name']||'')}</span></div></td>
       <td><span class="pill pill-c">${esc(j['Country']||'—')}</span></td>
-      <td style="font-size:.8rem;color:var(--ink-mid)">${esc((j['Role']||'').split(';')[0])}</td>
+      <td style="font-size:.8rem;color:var(--ink-mid)">${esc(toArr(j['Role'])[0]||'')}</td>
       <td><div class="beat-pills">${pills(j['Beat/Sector'])}</div></td>
       <td class="col-hide" style="font-size:.8rem;color:var(--ink-mid)">${esc(j['Media Publication']||'—')}</td>
-      <td class="col-hide" style="font-size:.78rem;color:var(--ink-soft)">${esc(j['Language']||'')}</td>
-      <td class="col-hide">${li}</td>
+      <td class="col-hide" style="font-size:.78rem;color:var(--ink-soft)">${esc(toArr(j['Language']).join(', '))}</td>
     </tr>`;
   }).join('');
   document.getElementById('result-count').textContent = `${rows.length} journalist${rows.length!==1?'s':''}`;
@@ -298,9 +300,9 @@ function renderO(rows) {
     return `<tr onclick="openO(${i})">
       <td><div class="name-cell">${av}<span class="name-text">${esc(name)}</span></div></td>
       <td><span class="pill pill-c">${esc(o['Country']||'—')}</span></td>
-      <td><div class="beat-pills">${pills(o['Beat/Sector']||o['Beat/Sector ']||'','pill-o')}</div></td>
+      <td><div class="beat-pills">${pills(toArr(o['Beat/Sector']||o['Beat/Sector ']||''),'pill-o')}</div></td>
       <td>${siteLink}</td>
-      <td class="col-hide" style="font-size:.78rem;color:var(--ink-soft)">${esc(o['Language']||'')}</td>
+      <td class="col-hide" style="font-size:.78rem;color:var(--ink-soft)">${esc(toArr(o['Language']).join(', '))}</td>
       <td class="col-hide">${email}</td>
     </tr>`;
   }).join('');
@@ -311,20 +313,23 @@ function renderO(rows) {
 function populateFilters() {
   const d = activeTab==='j' ? data.j : data.o;
   const countries = [...new Set(d.map(r=>r['Country']).filter(Boolean))].sort();
-  const beats = [...new Set(d.flatMap(r=>(r['Beat/Sector']||r['Beat/Sector ']||'').split(';').map(b=>b.trim()).filter(Boolean)))].sort();
+  const beats = [...new Set(d.flatMap(r=>toArr(r['Beat/Sector']||r['Beat/Sector '])))].sort();
+  const langs  = [...new Set(d.flatMap(r=>toArr(r['Language'])))].sort();
   document.getElementById('f-country').innerHTML = `<option value="">All countries</option>` + countries.map(c=>`<option>${esc(c)}</option>`).join('');
   document.getElementById('f-beat').innerHTML    = `<option value="">All beats</option>`    + beats.map(b=>`<option>${esc(b)}</option>`).join('');
+  document.getElementById('f-lang').innerHTML    = `<option value="">All languages</option>` + langs.map(l=>`<option>${esc(l)}</option>`).join('');
 }
 
 function applyFilters() {
   const q = document.getElementById('search').value.toLowerCase();
   const country = document.getElementById('f-country').value;
   const beat    = document.getElementById('f-beat').value;
-  const beatKey = r => r['Beat/Sector'] || r['Beat/Sector '] || '';
   let d = activeTab==='j' ? [...data.j] : [...data.o];
   if (q)       d = d.filter(r => JSON.stringify(r).toLowerCase().includes(q));
   if (country) d = d.filter(r => r['Country'] === country);
-  if (beat)    d = d.filter(r => beatKey(r).split(';').map(b=>b.trim()).includes(beat));
+  if (beat)    d = d.filter(r => toArr(r['Beat/Sector']||r['Beat/Sector ']).includes(beat));
+  const lang = document.getElementById('f-lang').value;
+  if (lang)    d = d.filter(r => toArr(r['Language']).includes(lang));
   activeTab==='j' ? renderJ(d) : renderO(d);
 }
 
@@ -368,14 +373,14 @@ function openJ(i) {
   document.getElementById('panel-body').innerHTML = `
     <div class="panel-avatar-row">${av}
       <div><div class="panel-name">${esc(j['Journalist Name']||'')}</div>
-        <div class="panel-role">${esc(j['Role']||'')}</div>
+        <div class="panel-role">${esc(toArr(j['Role']).join(', '))}</div>
         <div class="beat-pills">${pills(j['Beat/Sector'])}</div></div>
     </div>
     ${j['Bio']?`<div class="panel-section"><div class="panel-label">Bio</div><div class="panel-value">${esc(j['Bio'])}</div></div>`:''}
     <div class="panel-section panel-grid">
       ${j['Country']?`<div><div class="panel-label">Country</div><div class="panel-value">${esc(j['Country'])}</div></div>`:''}
       ${j['Media Publication']?`<div><div class="panel-label">Publication</div><div class="panel-value">${esc(j['Media Publication'])}</div></div>`:''}
-      ${j['Language']?`<div><div class="panel-label">Language</div><div class="panel-value">${esc(j['Language'])}</div></div>`:''}
+      ${toArr(j['Language']).length?`<div><div class="panel-label">Language</div><div class="panel-value">${esc(toArr(j['Language']).join(', '))}</div></div>`:''}
     </div>
     ${links.length?`<div class="panel-links">${links.join('')}</div>`:''}`;
   openPanel();
@@ -399,11 +404,11 @@ function openO(i) {
     <div class="panel-avatar-row">${av}
       <div><div class="panel-name">${esc(name)}</div>
         <div class="panel-role">${esc(o['Country']||'')}</div>
-        <div class="beat-pills">${pills(o['Beat/Sector']||o['Beat/Sector ']||'','pill-o')}</div></div>
+        <div class="beat-pills">${pills(toArr(o['Beat/Sector']||o['Beat/Sector ']||''),'pill-o')}</div></div>
     </div>
     ${o['Description']?`<div class="panel-section"><div class="panel-label">About</div><div class="panel-value">${esc(o['Description'])}</div></div>`:''}
     <div class="panel-section panel-grid">
-      ${o['Language']?`<div><div class="panel-label">Language</div><div class="panel-value">${esc(o['Language'])}</div></div>`:''}
+      ${toArr(o['Language']).length?`<div><div class="panel-label">Language</div><div class="panel-value">${esc(toArr(o['Language']).join(', '))}</div></div>`:''}
       ${site?`<div><div class="panel-label">Website</div><div class="panel-value"><a href="${esc(site)}" target="_blank" style="color:var(--green)">${esc(hostOnly(o['Website']))}</a></div></div>`:''}
     </div>
     ${links.length?`<div class="panel-links">${links.join('')}</div>`:''}`;
