@@ -30,8 +30,7 @@
   .btn-submit:hover { background: rgba(212,160,23,.1); border-color: var(--gold); }
 
   .hero { background: var(--ink); color: #fff; padding: 40px 32px 32px; border-bottom: 3px solid var(--accent); }
-  .hero h1 { font-family: 'Fraunces', Georgia, serif; font-weight: 300; font-size: clamp(1.8rem, 4vw, 2.8rem); line-height: 1.15; max-width: 640px; margin-bottom: 10px; }
-  .hero h1 em { font-style: italic; color: var(--gold); }
+  .hero-logo { height: 52px; width: auto; display: block; margin-bottom: 16px; }
   .hero-sub { font-size: .85rem; color: rgba(255,255,255,.5); font-weight: 400; max-width: 520px; line-height: 1.6; }
 
   .toolbar { background: var(--surface); border-bottom: 1px solid var(--rule); padding: 14px 32px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; position: sticky; top: 60px; z-index: 90; }
@@ -129,14 +128,13 @@
     <span class="wordmark-badge">Directory</span>
   </div>
   <div class="header-right">
-    <span class="header-count" id="total-count">Loading…</span>
     <a href="https://labarijournal.com" class="btn-submit" target="_blank">Submit a Profile</a>
   </div>
 </header>
 
 <div class="hero">
-  <h1>Africa's journalism<br><em>in one place.</em></h1>
-  <p class="hero-sub">A living directory of journalists and media organisations across the continent — curated by The Labari Network.</p>
+  <img src="./logo.png" alt="The Labari Network" class="hero-logo">
+  <p class="hero-sub">A living directory of journalists and media organisations across the continent — curated by <strong style="color:rgba(255,255,255,.75);font-weight:600">Labari Media</strong>.</p>
 </div>
 
 <div class="toolbar">
@@ -429,7 +427,6 @@ Promise.all([fetchTable('j'), fetchTable('o')])
     data.j = rj.filter(r => r['Journalist Name']);
     data.o = ro.filter(r => r['Organisation Name'] || r['Name']);
     filtered.j = data.j; filtered.o = data.o;
-    document.getElementById('total-count').textContent = `${data.j.length} journalists · ${data.o.length} organisations`;
     populateFilters();
     renderJ(data.j);
   })
