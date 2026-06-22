@@ -172,33 +172,33 @@
   }
   .card:hover { box-shadow: 0 4px 20px rgba(0,0,0,.1); transform: translateY(-2px); }
   .card-avatar {
-    width: 72px; height: 72px; border-radius: 50%;
+    width: 88px; height: 88px; border-radius: 50%;
     object-fit: cover; border: 3px solid var(--rule);
     margin-bottom: 12px; flex-shrink: 0;
   }
   .card-avatar-ph {
-    width: 72px; height: 72px; border-radius: 50%;
+    width: 88px; height: 88px; border-radius: 50%;
     background: var(--accent-dim); color: var(--accent);
-    font-size: 1.3rem; font-weight: 700;
+    font-size: 1.5rem; font-weight: 700;
     display: flex; align-items: center; justify-content: center;
     margin-bottom: 12px; flex-shrink: 0;
   }
   .card-avatar-ph.org { background: var(--green-dim); color: var(--green); border-radius: 10px; }
-  .card-logo { width: 72px; height: 72px; border-radius: 10px; object-fit: contain; background: var(--bg); border: 1px solid var(--rule); padding: 6px; margin-bottom: 12px; }
+  .card-logo { width: 88px; height: 88px; border-radius: 10px; object-fit: contain; background: var(--bg); border: 1px solid var(--rule); padding: 6px; margin-bottom: 12px; }
   .card-name { font-weight: 700; font-size: .9rem; margin-bottom: 4px; color: var(--ink); line-height: 1.3; }
   .card-country { font-size: .75rem; color: var(--ink-soft); margin-bottom: 10px; }
   .card-beats { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; margin-bottom: 14px; min-height: 24px; }
   .card-btn {
     margin-top: auto; width: 100%;
-    padding: 8px 0; border-radius: 6px; border: 1px solid var(--accent);
-    background: transparent; color: var(--accent);
+    padding: 8px 0; border-radius: 6px; border: none;
+    background: var(--accent); color: #fff;
     font-size: .78rem; font-weight: 600; cursor: pointer;
-    transition: background .15s, color .15s;
+    transition: background .15s, opacity .15s;
     font-family: inherit;
   }
-  .card-btn:hover { background: var(--accent); color: #fff; }
-  .card-btn.org { border-color: var(--green); color: var(--green); }
-  .card-btn.org:hover { background: var(--green); color: #fff; }
+  .card-btn:hover { opacity: .85; }
+  .card-btn.org { background: var(--green); }
+  .card-btn.org:hover { opacity: .85; }
 </style>
 </head>
 <body>
@@ -536,7 +536,6 @@ function renderCardsJ(rows) {
       ${av}
       <div class="card-name">${esc(j['Journalist Name']||'')}</div>
       <div class="card-country">${esc(extractVal(j['Country'])||'')}</div>
-      <div class="card-beats">${pills(j['Beat/Sector'])}</div>
       <button class="card-btn" onclick="event.stopPropagation();openJ(${i})">View Profile</button>
     </div>`;
   }).join('');
@@ -556,7 +555,6 @@ function renderCardsO(rows) {
       ${av}
       <div class="card-name">${esc(name)}</div>
       <div class="card-country">${esc(extractVal(o['Country'])||'')}</div>
-      <div class="card-beats">${pills(o['Beat/Sector']||o['Beat/Sector ']||'','pill-o')}</div>
       <button class="card-btn org" onclick="event.stopPropagation();openO(${i})">View Profile</button>
     </div>`;
   }).join('');
