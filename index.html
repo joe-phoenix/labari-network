@@ -232,10 +232,9 @@
 
 <script>
 // ── CONFIG ────────────────────────────────────────────────────────────────
-// No token here — all API calls go through your Cloudflare Worker proxy.
-// Replace this URL with your actual Worker URL after deploying worker.js
+// All API calls go through your Cloudflare Worker proxy (token stored there).
 const WORKER_URL = 'https://labari-network.joseph-kuuire.workers.dev';
-const TABLES  = { j: 'Journalists', o: 'Media Organisations' };
+const TABLES  = { j: 'journalists', o: 'orgs' };
 
 // ── STATE ─────────────────────────────────────────────────────────────────
 let data = { j: [], o: [] };
@@ -245,22 +244,23 @@ let sortState = { j: { col: '', dir: 1 }, o: { col: '', dir: 1 } };
 let page = { j: 1, o: 1 };
 const PAGE_SIZE = 20;
 
-// ── FETCH VIA CLOUDFLARE WORKER PROXY ────────────────────────────────────
+// ── FETCH VIA CLOUDFLARE WORKER PROXY (BASEROW) ──────────────────────────
 async function fetchTable(tableKey) {
-  const tableName = TABLES[tableKey];
-  let records = [], offset = null;
-  do {
-    let url = `${WORKER_URL}?table=${encodeURIComponent(tableName)}`;
-    if (offset) url += `&offset=${offset}`;
+  const tableParam = TABLES[tableKey];
+  let records = [], page = 1, hasMore = true;
+  while (hasMore) {
+    const url = `${WORKER_URL}?table=${tableParam}&page=${page}`;
     const resp = await fetch(url);
     if (!resp.ok) {
       const err = await resp.json().catch(() => ({}));
       throw new Error(err.error || `HTTP ${resp.status}`);
     }
     const json = await resp.json();
-    records = records.concat(json.records.map(r => r.fields));
-    offset = json.offset || null;
-  } while (offset);
+    // Baserow returns { count, next, previous, results }
+    records = records.concat(json.results || []);
+    hasMore = !!json.next;
+    page++;
+  }
   return records;
 }
 
@@ -282,8 +282,12 @@ function pills(val, cls='') {
 // Airtable attachment fields return an array of objects with a url property
 function getImageUrl(field) {
   if (!field) return '';
-  if (typeof field === 'string') return field;
-  if (Array.isArray(field) && field[0]?.url) return field[0].url;
+  // Plain text URL
+  if (typeof field === 'string' && field.trim().startsWith('http')) return field.trim();
+  // Baserow file field: array of {url, name, ...}
+  if (Array.isArray(field) && field.length && field[0]?.url) return field[0].url;
+  // Single object with url
+  if (typeof field === 'object' && field.url) return field.url;
   return '';
 }
 
