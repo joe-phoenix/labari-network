@@ -269,10 +269,20 @@ const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replac
 const initials = n => (n||'?').split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase();
 function ensureHttps(u) { if(!u) return ''; u=u.trim(); return /^https?:\/\//i.test(u)?u:'https://'+u; }
 function hostOnly(u) { try{return new URL(ensureHttps(u)).hostname.replace('www.','')}catch{return u} }
-// Airtable multi-select = array; fallback to semicolon-split string
+// Baserow select fields return {id, value, color} objects or arrays of them
+// Plain text fields return strings; handle all cases
+function extractVal(v) {
+  if (!v) return '';
+  if (typeof v === 'object' && v.value) return v.value;
+  return String(v).trim();
+}
 function toArr(val) {
   if (!val) return [];
-  if (Array.isArray(val)) return val.map(s=>String(s).trim()).filter(Boolean);
+  // Baserow multiple select: array of {id, value, color}
+  if (Array.isArray(val)) return val.map(extractVal).filter(Boolean);
+  // Baserow single select: {id, value, color}
+  if (typeof val === 'object' && val.value) return [val.value];
+  // Plain string fallback
   return String(val).split(';').map(s=>s.trim()).filter(Boolean);
 }
 function pills(val, cls='') {
@@ -313,7 +323,7 @@ function renderJ(rows, resetPage=true) {
       : `<div class="avatar-ph">${esc(initials(j['Journalist Name']))}</div>`;
     return `<tr onclick="openJ(${start + i})">
       <td><div class="name-cell">${av}<span class="name-text">${esc(j['Journalist Name']||'')}</span></div></td>
-      <td><span class="pill pill-c">${esc(j['Country']||'—')}</span></td>
+      <td><span class="pill pill-c">${esc(extractVal(j['Country'])||'—')}</span></td>
       <td style="font-size:.8rem;color:var(--ink-mid)">${esc(toArr(j['Role'])[0]||'')}</td>
       <td><div class="beat-pills">${pills(j['Beat/Sector'])}</div></td>
       <td class="col-hide" style="font-size:.8rem;color:var(--ink-mid)">${esc(j['Media Publication']||'—')}</td>
@@ -344,7 +354,7 @@ function renderO(rows, resetPage=true) {
     const email = o['Email Contact'] ? `<a class="link-icon" href="mailto:${esc(o['Email Contact'])}" onclick="event.stopPropagation()">${esc(o['Email Contact'])}</a>` : '';
     return `<tr onclick="openO(${start + i})">
       <td><div class="name-cell">${av}<span class="name-text">${esc(name)}</span></div></td>
-      <td><span class="pill pill-c">${esc(o['Country']||'—')}</span></td>
+      <td><span class="pill pill-c">${esc(extractVal(o['Country'])||'—')}</span></td>
       <td><div class="beat-pills">${pills(toArr(o['Beat/Sector']||o['Beat/Sector ']||''),'pill-o')}</div></td>
       <td>${siteLink}</td>
       <td class="col-hide" style="font-size:.78rem;color:var(--ink-soft)">${esc(toArr(o['Language']).join(', '))}</td>
@@ -358,7 +368,7 @@ function renderO(rows, resetPage=true) {
 // ── FILTERS ───────────────────────────────────────────────────────────────
 function populateFilters() {
   const d = activeTab==='j' ? data.j : data.o;
-  const countries = [...new Set(d.map(r=>r['Country']).filter(Boolean))].sort();
+  const countries = [...new Set(d.map(r=>extractVal(r['Country'])).filter(Boolean))].sort();
   const beats = [...new Set(d.flatMap(r=>toArr(r['Beat/Sector']||r['Beat/Sector '])))].sort();
   const langs  = [...new Set(d.flatMap(r=>toArr(r['Language'])))].sort();
   document.getElementById('f-country').innerHTML = `<option value="">All countries</option>` + countries.map(c=>`<option>${esc(c)}</option>`).join('');
@@ -372,7 +382,7 @@ function applyFilters() {
   const beat    = document.getElementById('f-beat').value;
   let d = activeTab==='j' ? [...data.j] : [...data.o];
   if (q)       d = d.filter(r => JSON.stringify(r).toLowerCase().includes(q));
-  if (country) d = d.filter(r => r['Country'] === country);
+  if (country) d = d.filter(r => extractVal(r['Country']) === country);
   if (beat)    d = d.filter(r => toArr(r['Beat/Sector']||r['Beat/Sector ']).includes(beat));
   const lang = document.getElementById('f-lang').value;
   if (lang)    d = d.filter(r => toArr(r['Language']).includes(lang));
@@ -473,7 +483,7 @@ function openJ(i) {
     </div>
     ${j['Bio']?`<div class="panel-section"><div class="panel-label">Bio</div><div class="panel-value">${esc(j['Bio'])}</div></div>`:''}
     <div class="panel-section panel-grid">
-      ${j['Country']?`<div><div class="panel-label">Country</div><div class="panel-value">${esc(j['Country'])}</div></div>`:''}
+      ${j['Country']?`<div><div class="panel-label">Country</div><div class="panel-value">${esc(extractVal(j['Country']))}</div></div>`:''}
       ${j['Media Publication']?`<div><div class="panel-label">Publication</div><div class="panel-value">${esc(j['Media Publication'])}</div></div>`:''}
       ${toArr(j['Language']).length?`<div><div class="panel-label">Language</div><div class="panel-value">${esc(toArr(j['Language']).join(', '))}</div></div>`:''}
     </div>
@@ -498,7 +508,7 @@ function openO(i) {
   document.getElementById('panel-body').innerHTML = `
     <div class="panel-avatar-row">${av}
       <div><div class="panel-name">${esc(name)}</div>
-        <div class="panel-role">${esc(o['Country']||'')}</div>
+        <div class="panel-role">${esc(extractVal(o['Country'])||'')}</div>
         <div class="beat-pills">${pills(toArr(o['Beat/Sector']||o['Beat/Sector ']||''),'pill-o')}</div></div>
     </div>
     ${o['Description']?`<div class="panel-section"><div class="panel-label">About</div><div class="panel-value">${esc(o['Description'])}</div></div>`:''}
