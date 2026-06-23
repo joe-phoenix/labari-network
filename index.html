@@ -4,7 +4,33 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>The Labari Network — African Journalism Directory</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
+
+  <!-- SEO -->
+  <meta name="description" content="The Labari Network is a living directory of African journalists and media organisations across the continent, curated by Labari Media.">
+  <meta name="keywords" content="African journalists, African media, journalism directory, Africa news, media organisations Africa, Labari Network">
+  <meta name="author" content="Labari Media">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://datadesk.labarijournal.com/network">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="The Labari Network — African Journalism Directory">
+  <meta property="og:description" content="A living directory of journalists and media organisations across Africa, curated by Labari Media.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://datadesk.labarijournal.com/network">
+  <meta property="og:image" content="./logo.png">
+  <meta property="og:site_name" content="The Labari Network">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="The Labari Network — African Journalism Directory">
+  <meta name="twitter:description" content="A living directory of journalists and media organisations across Africa, curated by Labari Media.">
+  <meta name="twitter:image" content="./logo.png">
+  <meta name="twitter:site" content="@labarijournal">
+
+  <!-- Favicon — newspaper emoji as SVG favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='18' fill='%230096FF'/><text y='.9em' font-size='72' x='50%' dominant-baseline='auto' text-anchor='middle' dy='0.1em'>📋</text></svg>">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,600;1,300&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -30,8 +56,13 @@
   .btn-submit:hover { background: rgba(212,160,23,.1); border-color: var(--gold); }
 
   .hero { background: var(--ink); color: #fff; padding: 40px 32px 32px; border-bottom: 3px solid var(--accent); }
-  .hero-logo { height: 80px; width: auto; display: block; margin-bottom: 16px; }
-  .hero-sub { font-size: .85rem; color: rgba(255,255,255,.5); font-weight: 400; max-width: 520px; line-height: 1.6; }
+  .hero-logo { height: 110px; width: auto; display: block; margin-bottom: 20px; }
+  .hero-sub { font-size: 1rem; color: rgba(255,255,255,.5); font-weight: 400; max-width: 520px; line-height: 1.6; margin-bottom: 20px; }
+  .hero-ctas { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 4px; }
+  .hero-cta { font-size: .8rem; font-weight: 600; letter-spacing: .3px; padding: 10px 20px; border-radius: 5px; text-decoration: none; cursor: pointer; border: none; font-family: inherit; transition: opacity .15s; }
+  .hero-cta-j { background: var(--accent); color: #fff; }
+  .hero-cta-o { background: var(--green); color: #fff; }
+  .hero-cta:hover { opacity: .85; }
 
   .toolbar { background: var(--surface); border-bottom: 1px solid var(--rule); padding: 14px 32px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; position: sticky; top: 60px; z-index: 90; }
   .tabs { display: flex; background: var(--bg); border: 1px solid var(--rule); border-radius: 6px; overflow: hidden; flex-shrink: 0; }
@@ -209,13 +240,17 @@
     <span class="wordmark-badge">Directory</span>
   </div>
   <div class="header-right">
-    <a href="https://labarijournal.com" class="btn-submit" target="_blank">Submit a Profile</a>
+    <a href="https://datadesk.labarijournal.com" class="btn-submit" target="_blank">← Back to Labari Desk</a>
   </div>
 </header>
 
 <div class="hero">
   <img src="./logo.png" alt="The Labari Network" class="hero-logo">
   <p class="hero-sub">A living directory of journalists and media organisations across the continent — curated by <strong style="color:rgba(255,255,255,.75);font-weight:600">Labari Media</strong>.</p>
+  <div class="hero-ctas">
+    <a href="#" class="hero-cta hero-cta-j">+ Add Journalist</a>
+    <a href="#" class="hero-cta hero-cta-o">+ Add Media Organisation</a>
+  </div>
 </div>
 
 <div class="toolbar">
@@ -666,5 +701,13 @@ Promise.all([fetchTable('j'), fetchTable('o')])
     document.getElementById('body-j').innerHTML = `<tr><td colspan="7"><div class="empty"><div class="empty-icon">⚠️</div><h3>Could not load directory</h3><p>${err.message}</p></div></td></tr>`;
   });
 </script>
+
+<footer style="background:var(--ink);color:rgba(255,255,255,.4);text-align:center;padding:20px 32px;font-size:.78rem;border-top:1px solid #222;margin-top:40px;">
+  <span>© 2026 Labari Media. All rights reserved.</span>
+  <span style="margin:0 12px;opacity:.3">|</span>
+  <a href="https://labarijournal.com" style="color:rgba(255,255,255,.4);text-decoration:none;" target="_blank">Labari Journal</a>
+  <span style="margin:0 12px;opacity:.3">|</span>
+  <a href="https://datadesk.labarijournal.com" style="color:rgba(255,255,255,.4);text-decoration:none;" target="_blank">Labari Data Desk</a>
+</footer>
 </body>
 </html>
